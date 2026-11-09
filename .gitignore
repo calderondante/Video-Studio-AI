@@ -10,3 +10,5 @@ output/*
 !output/.gitkeep
 .env*
 *.log
+
+config/nombres.json

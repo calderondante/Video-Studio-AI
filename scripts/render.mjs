@@ -1,10 +1,13 @@
 import {spawnSync} from 'node:child_process';
-import {existsSync, mkdirSync} from 'node:fs';
+import {existsSync, mkdirSync, statfsSync} from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 const [mode='video',composition='Documental',output=mode==='still'?'output/cover.png':'output/demo.mp4',props] = process.argv.slice(2);
 if (!['video','still','studio'].includes(mode)) throw Error('mode: video | still | studio');
 if(mode!=='studio' && existsSync(output)) throw Error('Output exists; choose a new path');
 mkdirSync(path.dirname(output),{recursive:true});
+const disk=statfsSync(path.dirname(output));
+if(disk.bavail*disk.bsize<512*1024**2 || os.availableMemory()<256*1024**2) throw Error('Insufficient memory or disk');
 const args=mode==='studio'?['studio','src/index.tsx','--no-open']: [mode==='still'?'still':'render','src/index.tsx',composition,output];
 if(process.env.CHROME_PATH) args.push('--browser-executable='+process.env.CHROME_PATH);
 if(mode==='video') args.push('--codec=h264','--concurrency='+ (process.env.RENDER_CONCURRENCY || '2'));

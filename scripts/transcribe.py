@@ -8,14 +8,14 @@ from pathlib import Path
 import tempfile
 import time
 from filelock import FileLock
-from common import atomic_json, capacity, digest, probe, run
+from common import atomic_json, capacity, digest, probe, run, memory_available
 from subtitles import from_segments, review, save
 
 
 def hardware():
     import ctranslate2
     gpu=ctranslate2.get_cuda_device_count()>0
-    return {'device':'cuda' if gpu else 'cpu','compute_type':'float16' if gpu else 'int8','model':'small' if gpu else 'base','cpu_threads':min(2,os.cpu_count() or 1)}
+    return {'device':'cuda' if gpu else 'cpu','compute_type':'float16' if gpu else 'int8','model':'small' if gpu else ('base' if memory_available()>=2*1024**3 else 'tiny'),'cpu_threads':min(2,os.cpu_count() or 1)}
 
 
 def process(source,output,model_name=None,chunk_seconds=300,names=(),loader=None):

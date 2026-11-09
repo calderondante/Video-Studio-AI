@@ -24,9 +24,23 @@ def validate(path):
     run(['ffmpeg','-v','error','-xerror','-i',path,'-f','null','-'])
     return info
 
+def memory_available():
+    values={}
+    for line in Path('/proc/meminfo').read_text().splitlines():
+        k,v=line.split(':',1);values[k]=int(v.strip().split()[0])*1024
+    available=values['MemAvailable']
+    try:
+        limit=Path('/sys/fs/cgroup/memory.max').read_text().strip()
+        if limit!='max':
+            available=min(available,int(limit)-int(Path('/sys/fs/cgroup/memory.current').read_text()))
+    except (OSError,ValueError):pass
+    return max(0,available)
+
 def capacity(path, minimum=512*1024**2):
     if shutil.disk_usage(path).free < minimum:
         raise RuntimeError('Insufficient free disk space')
+    if memory_available()<256*1024**2:
+        raise RuntimeError('Insufficient available memory (less than 256 MiB)')
 
 def digest(path):
     h=hashlib.sha256()

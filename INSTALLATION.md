@@ -42,4 +42,4 @@ Tras habilitar red, probar primero tiny (~75 MB de pesos), no un modelo enorme:
 .venv/bin/python scripts/transcribe.py audio_autorizado.wav --model tiny --output work/prueba-asr
 ```
 
-El script usa CPU/int8 aquí; base es el valor normal para CPU y small para GPU detectada. Un modelo local ya descargado también puede pasarse mediante `--model /ruta/al/modelo`. Revisar exactitud y tiempos con audio español autorizado; ni la prueba simulada ni VAD silencioso sustituyen esta comprobación.
+El script usa CPU/int8 aquí; base es el valor normal para CPU (tiny si quedan menos de 2 GiB de RAM) y small para GPU detectada. Un modelo local ya descargado también puede pasarse mediante `--model /ruta/al/modelo`. Revisar exactitud y tiempos con audio español autorizado; ni la prueba simulada ni VAD silencioso sustituyen esta comprobación.
