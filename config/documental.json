@@ -1,0 +1,11 @@
+{
+  "font": "DejaVu Sans",
+  "font_size_1080": 48,
+  "outline": 2.5,
+  "margin_vertical_1080": 70,
+  "max_lines": 2,
+  "characters_per_line": 42,
+  "max_cps": 20,
+  "concurrency": 2,
+  "segment_seconds": 300
+}

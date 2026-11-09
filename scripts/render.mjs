@@ -1,0 +1,14 @@
+import {spawnSync} from 'node:child_process';
+import {existsSync, mkdirSync} from 'node:fs';
+import path from 'node:path';
+const [mode='video',composition='Documental',output=mode==='still'?'output/cover.png':'output/demo.mp4',props] = process.argv.slice(2);
+if (!['video','still','studio'].includes(mode)) throw Error('mode: video | still | studio');
+if(mode!=='studio' && existsSync(output)) throw Error('Output exists; choose a new path');
+mkdirSync(path.dirname(output),{recursive:true});
+const args=mode==='studio'?['studio','src/index.tsx','--no-open']: [mode==='still'?'still':'render','src/index.tsx',composition,output];
+if(process.env.CHROME_PATH) args.push('--browser-executable='+process.env.CHROME_PATH);
+if(mode==='video') args.push('--codec=h264','--concurrency='+ (process.env.RENDER_CONCURRENCY || '2'));
+if(mode==='still') args.push('--frame=40');
+if(props) args.push('--props='+props);
+const result=spawnSync('node',['node_modules/@remotion/cli/remotion-cli.js',...args],{stdio:'inherit'});
+process.exit(result.status ?? 1);

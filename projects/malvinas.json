@@ -1,0 +1,14 @@
+{
+  "name": "Entrevista documental — Veterano de Malvinas",
+  "source_folder": "https://drive.google.com/drive/folders/1ps24ehNBibgSXvSNF-h8JSz2MYZv4BGX",
+  "expected_files": 3,
+  "status": "awaiting_authorized_ingest",
+  "language": "es",
+  "aspect": "16:9",
+  "fps": 30,
+  "subtitle_preset": "Documental",
+  "originals": "input/malvinas",
+  "work": "work/malvinas",
+  "output": "output/malvinas",
+  "proper_names": []
+}

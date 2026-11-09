@@ -1,0 +1,20 @@
+# Flujo audiovisual
+
+1. Autorizar e incorporar copias de los originales en input/. No alterar los archivos fuente. El proyecto `projects/malvinas.json` solo prepara la futura entrevista; sus tres MP4 no se descargaron.
+2. Inspeccionar cada archivo: `.venv/bin/python scripts/media.py verify input/archivo.mp4`. Registrar duración, resolución, FPS y canales.
+3. Extraer WAV mono 16 kHz: `.venv/bin/python scripts/media.py audio input/archivo.mp4 work/audio.wav`.
+4. Transcribir: `.venv/bin/python scripts/transcribe.py work/audio.wav --output work/entrevista --names config/nombres.json`. Crear nombres.json como array JSON de nombres autorizados. No es obligatorio. Sirve de pista y checklist, sin reemplazos automáticos.
+5. Repetir el mismo comando tras una interrupción. El checkpoint contiene hash completo de la fuente y configuración; los chunks completados no se repiten. Cada chunk se confirma atómicamente, con bloqueo de ejecución concurrente. Cambiar modelo, fuente, nombres o tamaño requiere un directorio de trabajo nuevo. Revisar los límites de chunks: no hay solapamiento automático y una palabra puede cortarse.
+6. Revisar `transcript.json`: baja confianza, silencio probable, palabras dudosas, nombres y fronteras de fragmentos. TXT/SRT/JSON se exportan desde el checkpoint. Las marcas de palabra se conservan en JSON; el ajuste de líneas reparte el tiempo dentro del segmento y debe revisarse.
+7. Convertir a ASS: `.venv/bin/python scripts/subtitles.py work/entrevista/transcript.srt output/entrevista.ass --width 1920 --height 1080 --duration 600`. Indicar la duración real. Los errores de sincronización bloquean la conversión; velocidad de lectura y líneas largas se informan para revisión.
+8. Generar aperturas y carátulas con `scripts/render.mjs`, `templates/title.json` y las composiciones Documental/Vertical. Usar `RENDER_CONCURRENCY=1` con hardware más limitado.
+9. Normalizar audio y reducir ruido moderado: `.venv/bin/python scripts/media.py normalize input/archivo.mp4 output/normalizado.mp4`. Es normalización de una pasada; para mastering final medir LUFS y revisar auditivamente. Ajustar resolución/FPS con `resize --width 1920 --height 1080 --fps 30`.
+10. Unir segmentos compatibles: guardar rutas absolutas en un array JSON y ejecutar `scripts/media.py concat lista.json output/unido.mp4` usando la venv. El script compara streams y rechaza diferencias; homogeneizar antes. No concatena silenciosamente codecs incompatibles.
+11. Incrustar: `.venv/bin/python scripts/media.py burn output/unido.mp4 output/final.mp4 --subtitles output/entrevista.ass`. Normaliza SRT/ASS al preset Documental según resolución, blanco con contorno oscuro, dos líneas habituales y márgenes seguros. Preserva el SRT editable. No asume que subtítulos de un clip sirven para una unión sin ajustar sus tiempos.
+12. Verificar decodificación completa, duración, codec, sincronización y fotogramas con `verify` y `frame --at 30`. Confirmar audio y subtítulos antes de entregar o borrar intermedios.
+
+El procesamiento FFmpeg es por streaming, con dos hilos por defecto. ASR segmenta a 300 segundos, libera cada WAV temporal y guarda resultados antes de continuar. Se comprueba disco antes de escribir, con mínimo de 512 MiB; ese mínimo no garantiza espacio para proyectos grandes. Estimar el tamaño final y vigilar consumo con `df -h`, `free -h` y logs. Los modelos se cachean en `.cache/models`. No se borra material de forma automática.
+
+Limpieza opcional: `scripts/cleanup.py --job-dir work/entrevista --validated-output output/final.mp4` con la venv muestra temporales ASR de más de 24 horas. `--apply` los elimina solo después de decodificar el output; nunca elimina fuentes, checkpoints ni exports. No ejecutar durante una transcripción activa.
+
+API opcional: `scripts/transcribe_api.py` admite audio menor de 24 MiB, una URL HTTPS autorizada y `TRANSCRIPTION_API_KEY` configurada de forma segura para ese dominio. Su invocación envía audio al proveedor y puede generar cargos; usarla solo con autorización. No se llamó a ninguna API y no se declara verificada. Para local no se necesita esa clave.

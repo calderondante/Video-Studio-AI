@@ -1,0 +1,42 @@
+{
+  "name": "video-studio-ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "render": "node scripts/render.mjs video",
+    "still": "node scripts/render.mjs still",
+    "studio": "node scripts/render.mjs studio",
+    "test": ".venv/bin/python -m unittest discover -s tests -v",
+    "verify": ".venv/bin/python scripts/doctor.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calderondante/Video-Studio-AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/calderondante/Video-Studio-AI/issues"
+  },
+  "homepage": "https://github.com/calderondante/Video-Studio-AI#readme",
+  "dependencies": {
+    "@remotion/cli": "4.0.541",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.541"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "6.0.3"
+  },
+  "private": true
+}
